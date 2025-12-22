@@ -1,5 +1,8 @@
 /* This script starts the FastAPI and Next.js servers, setting up user configuration if necessary. It reads environment variables to configure API keys and other settings, ensuring that the user configuration file is created if it doesn't exist. The script also handles the starting of both servers and keeps the Node.js process alive until one of the servers exits. */
 
+import { config } from "dotenv";
+config(); // 加载 .env 文件
+
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
@@ -31,11 +34,20 @@ if (!existsSync(userDataDir)) {
 // Setup node_modules for development
 const setupNodeModules = () => {
   return new Promise((resolve, reject) => {
+    // 如果 node_modules 已存在，跳过安装
+    const nodeModulesPath = join(nextjsDir, "node_modules");
+    if (existsSync(nodeModulesPath)) {
+      console.log("node_modules already exists, skipping npm install...");
+      resolve();
+      return;
+    }
+    
     console.log("Setting up node_modules for Next.js...");
     const npmProcess = spawn("npm", ["install"], {
       cwd: nextjsDir,
       stdio: "inherit",
       env: process.env,
+      shell: true, // Windows 兼容
     });
 
     npmProcess.on("error", (err) => {
@@ -122,6 +134,7 @@ const startServers = async () => {
       cwd: fastapiDir,
       stdio: "inherit",
       env: process.env,
+      shell: true, // Windows 兼容
     }
   );
 
@@ -136,6 +149,7 @@ const startServers = async () => {
       cwd: fastapiDir,
       stdio: "ignore",
       env: process.env,
+      shell: true, // Windows 兼容
     }
   );
 
@@ -158,6 +172,7 @@ const startServers = async () => {
       cwd: nextjsDir,
       stdio: "inherit",
       env: process.env,
+      shell: true, // Windows 兼容
     }
   );
 
@@ -166,20 +181,26 @@ const startServers = async () => {
   });
 
   const ollamaProcess = spawn("ollama", ["serve"], {
-    cwd: "/",
-    stdio: "inherit",
+    cwd: ".",
+    stdio: "ignore", // 忽略 Ollama 输出，避免干扰
     env: process.env,
+    shell: true, // Windows 兼容
   });
 
   ollamaProcess.on("error", (err) => {
-    console.error("Ollama process failed to start:", err);
+    console.error("Ollama process failed to start (可忽略):", err.message);
   });
 
-  // Keep the Node process alive until both servers exit
+  ollamaProcess.on("exit", (code) => {
+    if (code !== 0) {
+      console.log("Ollama 未运行或已在其他进程运行 (可忽略)");
+    }
+  });
+
+  // Keep the Node process alive until core servers exit (不包括 Ollama)
   const exitCode = await Promise.race([
     new Promise((resolve) => fastApiProcess.on("exit", resolve)),
     new Promise((resolve) => nextjsProcess.on("exit", resolve)),
-    new Promise((resolve) => ollamaProcess.on("exit", resolve)),
   ]);
 
   console.log(`One of the processes exited. Exit code: ${exitCode}`);

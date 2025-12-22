@@ -33,8 +33,17 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-# Container DB (Lives inside the container)
-container_db_url = "sqlite+aiosqlite:////app/container.db"
+# Container DB (Lives inside the container or local user_data)
+import sys
+if sys.platform == "win32":
+    # Windows: 使用 user_data 目录
+    _container_db_path = os.path.join(
+        os.environ.get("APP_DATA_DIRECTORY", "."), "container.db"
+    )
+    container_db_url = f"sqlite+aiosqlite:///{_container_db_path}"
+else:
+    container_db_url = "sqlite+aiosqlite:////app/container.db"
+    
 container_db_engine: AsyncEngine = create_async_engine(
     container_db_url, connect_args={"check_same_thread": False}
 )
