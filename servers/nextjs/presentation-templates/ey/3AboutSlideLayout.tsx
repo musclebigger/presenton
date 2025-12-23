@@ -4,7 +4,7 @@ import { ImageSchema } from "@/presentation-templates/defaultSchemes";
 
 export const layoutId = "about-ey-slide";
 export const layoutName = "About Us Slide";
-export const layoutDescription = "Company overview with image and text.";
+export const layoutDescription = "A split-layout slide with image and text, ideal for company introductions, case studies, project overviews, vision statements, service descriptions, or any content that benefits from visual storytelling.";
 
 const aboutSchema = z.object({
   title: z.string().min(2).max(50).default("Who We Are").meta({

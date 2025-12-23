@@ -4,7 +4,7 @@ import { ImageSchema } from "@/presentation-templates/defaultSchemes";
 
 export const layoutId = "toc-ey-slide";
 export const layoutName = "Table of Contents Slide";
-export const layoutDescription = "A clean table of contents slide with EY styling.";
+export const layoutDescription = "A versatile numbered list slide for displaying structured information such as agenda items, process steps, service offerings, product features, project phases, or timeline milestones.";
 
 const tocSchema = z.object({
   title: z.string().min(2).max(50).default("Agenda").meta({

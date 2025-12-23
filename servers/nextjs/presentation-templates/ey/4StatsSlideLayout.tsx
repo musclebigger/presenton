@@ -4,7 +4,7 @@ import { ImageSchema } from "@/presentation-templates/defaultSchemes";
 
 export const layoutId = "stats-ey-slide";
 export const layoutName = "Key Statistics Slide";
-export const layoutDescription = "Display key metrics and numbers.";
+export const layoutDescription = "A bold metrics display slide for showcasing key numbers, achievements, growth indicators, comparison data, survey results, or any quantitative highlights that need visual emphasis.";
 
 const statsSchema = z.object({
   title: z.string().min(2).max(50).default("By the Numbers").meta({ description: "Slide title" }),
