@@ -569,10 +569,23 @@ async def _convert_pptx_to_pdf(pptx_path: str, temp_dir: str) -> str:
         pdf_filename = "temp_presentation.pdf"
         pdf_path = os.path.join(screenshots_dir, pdf_filename)
 
+        # 查找 LibreOffice 可执行文件
+        import sys
+        libreoffice_cmd = "libreoffice"
+        if sys.platform == "win32":
+            possible_paths = [
+                r"C:\Program Files\LibreOffice\program\soffice.exe",
+                r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+            ]
+            for path in possible_paths:
+                if os.path.exists(path):
+                    libreoffice_cmd = path
+                    break
+
         try:
             result = subprocess.run(
                 [
-                    "libreoffice",
+                    libreoffice_cmd,
                     "--headless",
                     "--convert-to",
                     "pdf",

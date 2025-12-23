@@ -98,7 +98,9 @@ async function getBrowserAndPage(id: string): Promise<[Browser, Page]> {
   await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
   page.setDefaultNavigationTimeout(300000);
   page.setDefaultTimeout(300000);
-  await page.goto(`http://localhost/pdf-maker?id=${id}`, {
+
+  const baseUrl = process.env.INTERNAL_BASE_URL || 'http://localhost:3000';
+  await page.goto(`${baseUrl}/pdf-maker?id=${id}`, {
     waitUntil: "networkidle0",
     timeout: 300000,
   });
@@ -471,7 +473,7 @@ async function getAllChildElementsAttributes({
           return a.depth - b.depth;
         }
 
-        return zIndexB - zIndexA;
+        return zIndexA - zIndexB;
       })
       .map(({ attributes }) => {
         if (

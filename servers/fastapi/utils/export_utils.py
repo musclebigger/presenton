@@ -13,6 +13,9 @@ from services.temp_file_service import TEMP_FILE_SERVICE
 from utils.asset_directory_utils import get_exports_directory
 import uuid
 
+# Internal base URL for service-to-service communication
+INTERNAL_BASE_URL = os.environ.get("INTERNAL_BASE_URL", "http://localhost:3000")
+
 
 async def export_presentation(
     presentation_id: uuid.UUID, title: str, export_as: Literal["pptx", "pdf"]
@@ -22,7 +25,7 @@ async def export_presentation(
         # Get the converted PPTX model from the Next.js service
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"http://localhost/api/presentation_to_pptx_model?id={presentation_id}"
+                f"{INTERNAL_BASE_URL}/api/presentation_to_pptx_model?id={presentation_id}"
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
@@ -53,7 +56,7 @@ async def export_presentation(
     else:
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                "http://localhost/api/export-as-pdf",
+                f"{INTERNAL_BASE_URL}/api/export-as-pdf",
                 json={
                     "id": str(presentation_id),
                     "title": sanitize_filename(title or str(uuid.uuid4())),
